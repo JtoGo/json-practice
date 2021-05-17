@@ -9,17 +9,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-
 public class MainActivity extends AppCompatActivity {
-    Button btn_cityID, btn_getWeatherByID, btn_getWeatherByName;
+    public Button btn_cityID, btn_getWeatherByID, btn_getWeatherByName;
     EditText et_dataInput;
     ListView lv_weatherReport;
 
@@ -36,53 +27,32 @@ public class MainActivity extends AppCompatActivity {
         et_dataInput = findViewById(R.id.et_dataInput);
         lv_weatherReport = findViewById(R.id.lv_weatherReports);
 
+        final WeatherDataService weatherDataService = new WeatherDataService(MainActivity.this);
+
         // click listeners for each button.
         btn_cityID.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View view) {
-
-                // Instantiate the RequestQueue. プログラムの何処にあるのか
-                RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
-                String url ="https://www.metaweather.com/api/location/search/?query=london";
-                JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null,  new Response.Listener<JSONArray>() {
+                // this did'nt return anything
+                weatherDataService.getCityID(et_dataInput.getText().toString(), new WeatherDataService.VolleyResponseListener() {
                     @Override
-                    public void onResponse(JSONArray response) {
-                        Toast.makeText(MainActivity.this, response.toString(), Toast.LENGTH_SHORT).show();
+                    public void onError(String message) {
+                        Toast.makeText(MainActivity.this, "something wrong", Toast.LENGTH_SHORT).show();
                     }
-                }, new Response.ErrorListener() {
+
                     @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, "something wrong...", Toast.LENGTH_SHORT).show();
+                    public void onResponse(String cityID) {
+                        Toast.makeText(MainActivity.this, "Returned an ID of " + cityID, Toast.LENGTH_SHORT).show();
                     }
                 });
-
-                // Request a string response from the provided URL.
-//                StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-//                        new Response.Listener<String>() {
-//                            @Override
-//                            public void onResponse(String response) {
-//                                Toast.makeText(MainActivity.this, response, Toast.LENGTH_SHORT).show();
-//                            }
-//                        }, new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        Toast.makeText(MainActivity.this, "Error occured", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-
-// Add the request to the RequestQueue.
-                queue.add(request);
-
-//                Toast.makeText(MainActivity.this, "you clicked cityID.", Toast.LENGTH_SHORT).show();
             }
         });
 
         btn_getWeatherByID.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "you clicked getWeatherByID.", Toast.LENGTH_SHORT).show();
-
+                weatherDataService.getCityForecastByID("44418");
             }
         });
 
